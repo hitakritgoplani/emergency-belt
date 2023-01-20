@@ -43,8 +43,13 @@ def make_emergency_call():
 
 while True:
 	response = get_sensor_value_from_pin('1')
-	if response == 0:
+	if response == 0: #Pressed 1st time to send location
 		print("Alerting emergency contact")
-		send_live_location()
 		make_emergency_call()
+		while True:
+			send_live_location()
+			time.sleep(3)
+			next_response = get_sensor_value_from_pin('1')
+			if next_response == 0: #Checking if button is pressed again to stop sending location
+				break
 	time.sleep(5)
