@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Location</title>
+</head>
+
+<body>
+	<script type="module">
+		
+		// Import the functions you need from the SDKs you need
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+		import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+		// TODO: Add SDKs for Firebase products that you want to use
+		// https://firebase.google.com/docs/web/setup#available-libraries
+
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyBsQfOYXQT7lUycwgk9-xKyppfIJ2xKzSA",
+			authDomain: "emergency-belt.firebaseapp.com",
+			projectId: "emergency-belt",
+			storageBucket: "emergency-belt.appspot.com",
+			messagingSenderId: "659318588814",
+			appId: "1:659318588814:web:e9061134a77e2ae93350df"
+		};
+
+		// Initialize Firebase
+		const app = initializeApp(firebaseConfig);
+		var db = getDatabase(app);
+
+		function getLocation(){
+			navigator.geolocation.getCurrentPosition(postion =>{
+				var {latitude, longitude} = postion.coords;
+				console.log(latitude+" "+longitude)
+				set(ref(db, 'location/'), {
+    				lat:latitude,
+					long:longitude
+  				});
+			});
+			setTimeout(getLocation, 10000);
+		};
+		
+		getLocation();
+	</script>
+</body>
+</html>
