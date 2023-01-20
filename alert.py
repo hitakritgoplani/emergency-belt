@@ -52,4 +52,5 @@ while True:
 			next_response = get_sensor_value_from_pin('1')
 			if next_response == 0: #Checking if button is pressed again to stop sending location
 				break
+			time.sleep(5)
 	time.sleep(5)
