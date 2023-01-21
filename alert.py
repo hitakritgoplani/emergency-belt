@@ -1,7 +1,8 @@
 from boltiot import Bolt, Sms
 from twilio.rest import Client
 from firebase import Firebase
-import json, time, conf, requests, geocoder
+
+import json, time, conf, geocoder
 
 firebase = Firebase(conf.firebaseConfig)
 db = firebase.database()
@@ -14,10 +15,10 @@ def get_sensor_value_from_pin(pin):
 	try:
 		response = mybolt.digitalRead(pin)
 		data = json.loads(response)
-		if data['success'] == 1:
-			print("Request not successful")
+		if data['success'] != 1:
+			print("Error")
 			return -999
-		return data['value']
+		return int(data['value'])
 	except Exception as e:
 		print("Error")
 		return -1
@@ -29,7 +30,7 @@ def send_live_location():
 	long = location["long"]
 	loc = geocoder.bing([lat, long], key=conf.LOCATION_API_KEY, method='reverse')
 	address = str(loc.address)
-	response = sms.send_sms(f"Message from Emergency belt, live location is {address}")
+	sms.send_sms(f"Message from Emergency belt, live location is near {address}, Coordinates are {lat} {long}")
 	print("Location sent")
 
 def make_emergency_call():
@@ -43,14 +44,18 @@ def make_emergency_call():
 
 while True:
 	response = get_sensor_value_from_pin('1')
-	if response == 0: #Pressed 1st time to send location
-		print("Alerting emergency contact")
+	if response == 1:
+		print("Button not pressed")
+	# Pressed 1st time to send location
+	else:
+		print("Alerting emergency contact...")
 		make_emergency_call()
 		while True:
 			send_live_location()
 			time.sleep(3)
 			next_response = get_sensor_value_from_pin('1')
 			if next_response == 0: #Checking if button is pressed again to stop sending location
+				print("Location sending stopped")
 				break
 			time.sleep(5)
-	time.sleep(5)
+	time.sleep(3)
